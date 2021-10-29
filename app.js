@@ -6,7 +6,7 @@ const { Server } = require("socket.io");
 const { assert } = require('console');
 const io = new Server(server);
 
-const port = $PORT;
+const port = process.env.PORT || 3000;
 
 
 app.use(express.static('public'));

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Demo</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+
+    <!-- we import arjs version without NFT but with marker + location based support -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.3.3/aframe/build/aframe-ar.js"></script>
+
+    <!-- Knockout is an implementation of the Model–View–ViewModel pattern with templates -->
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>
+
+    <!-- Socket Io for socket connections -->
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+        integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+        crossorigin="anonymous"></script>
+</head>
+
+
+<body style="margin : 0px; overflow: hidden;">
+
+    <script>
+        function vector3ToString(vector3) {
+            return `${vector3.x} ${vector3.y} ${vector3.z}`
+        }
+    </script>
+
+    <a-scene embedded arjs>
+        <a-assets data-bind="foreach: models">
+            <a-asset-item id="" src="" data-bind="attr: {id,src}"></a-asset-item>
+        </a-assets>
+        <a-marker id="marker" preset="hiro">
+            <a-entity data-bind="if:hasModels">
+                <a-entity id="currentModel" data-bind="attr:{'gltf-model':`#${currentModel()}`}">
+                </a-entity>
+            </a-entity>
+
+            <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere" color="red">
+            </a-sphere>
+            <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere2" color="red">
+            </a-sphere>
+            <a-entity id="line" line=""></a-entity>
+
+            <a-entity data-bind="foreach: labels">
+                <a-sphere radius="0.05" color="red" data-bind="attr:{position:point1}">
+                </a-sphere>
+                <a-sphere radius="0.05" color="red" data-bind="attr:{position:point2}">
+                </a-sphere>
+                <a-entity color="red" data-bind="attr:{line:`start: ${point1};end: ${point2};`}"></a-entity>
+                <a-entity geometry="primitive: plane; width: 3; height: 0.5" position="2 2 2" text="value: Hello;"
+                    color="red" data-bind="attr:{position: point2, text:`value: ${text}`}"></a-entity>
+
+            </a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // https://medium.com/swlh/how-to-handle-click-events-on-ar-js-f397ea5994d
+        /*
+          ARjs breaks raycast (can't click objects even if mouse is hovering over them)
+          + https://github.com/AR-js-org/AR.js/issues/271
+        */
+
+        function getModelIdIndexFromId(modelId) {
+            var modelIndex = -1
+            viewModel.models().forEach((val, index) => {
+                if (val.id === modelId) {
+                    modelIndex = index
+                }
+            })
+            return modelIndex
+        }
+
+        function ViewModel() {
+            this.models = ko.observableArray([
+                {
+                    src: "models/ammo1.glb",
+                    id: "ammonitModel1",
+                    text: "Ammonit 1"
+                },
+                {
+                    src: "models/Rock.glb",
+                    id: "rock",
+                    text: "Stein"
+                },
+
+                {
+                    src: "models/Ammonit2.glb",
+                    id: "ammonitModel2",
+                    text: "Ammonit 2"
+                },
+                {
+                    src: "models/Brachiopode.glb",
+                    id: "brachiopodeModel",
+                    text: "Brachiopode"
+                }]),
+                this.labels = ko.observableArray([
+                    {
+                        point1: "0 0.7 0",
+                        point2: "1 1 1",
+                        text: "An dieser Stelle gibt es viel zu sehen!"
+                    },
+                    {
+                        point1: "4 0 4",
+                        point2: "6 0 6",
+                        text: "An dieser Stelle gibt es viel zu sehen!"
+                    },
+                ]),
+                this.currentModelIndex = ko.observable(0),
+                this.color = ko.observable("red"),
+                this.hasModels = ko.computed(function () {
+                    return this.models().length > 0;
+                }, this),
+                this.currentModel = ko.computed(function () {
+                    return this.models()[this.currentModelIndex()]?.id;
+                }, this)
+        }
+        var viewModel = new ViewModel();
+        ko.applyBindings(viewModel);
+
+        /**
+          * We need to change the model with DOM because using a model binds it to an a-entity forever. 
+          * Changing the model via data binding causes warnings and doesn't work. So instead of figuring
+          * a way how to deal with the binding we delete the a-entity with the model and and add a new 
+          * a-entity with the new model to it.
+          */
+        function setCurrentModel(modelId) {
+            var newChild = currentModel.cloneNode(false);
+            var parent = currentModel.parentNode;
+            currentModel.remove();
+            parent.appendChild(newChild)
+            currentModel.setAttribute("gltf-model", "#" + modelId)
+        }
+        // When updating currentModel -> execute function setCurrentModel
+        viewModel.currentModel.subscribe((newVal) => setCurrentModel(newVal))
+        viewModel.models.subscribe((newVal) => (circleDisplay()))
+
+        /**
+         * Handle Connection to server
+         **/
+        var socket = io();
+
+        socket.on('add label', label => {
+            viewModel.labels.push(label);
+        });
+
+        // Recieve all labels
+        socket.on('labels', labels => {
+            viewModel.labels(labels);
+        });
+
+        socket.on('current model', function (modelId) {
+            var modelIndex = getModelIdIndexFromId(modelId)
+            viewModel.currentModelIndex(modelIndex)
+        });
+    </script>
+</body>
+
+</html>

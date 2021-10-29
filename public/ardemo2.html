@@ -34,26 +34,28 @@
             <a-asset-item id="" src="" data-bind="attr: {id,src}"></a-asset-item>
         </a-assets>
         <a-marker id="marker" preset="hiro">
-            <a-entity data-bind="if:hasModels">
-                <a-entity id="currentModel" data-bind="attr:{'gltf-model':`#${currentModel()}`}">
+            <a-entity scale="4 4 4">
+                <a-entity data-bind="if:hasModels">
+                    <a-entity id="currentModel" data-bind="attr:{'gltf-model':`#${currentModel()}`}">
+                    </a-entity>
                 </a-entity>
-            </a-entity>
 
-            <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere" color="red">
-            </a-sphere>
-            <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere2" color="red">
-            </a-sphere>
-            <a-entity id="line" line=""></a-entity>
-
-            <a-entity data-bind="foreach: labels">
-                <a-sphere radius="0.05" color="red" data-bind="attr:{position:point1}">
+                <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere" color="red">
                 </a-sphere>
-                <a-sphere radius="0.05" color="red" data-bind="attr:{position:point2}">
+                <a-sphere position="-100000 -100000 -100000" radius="0.05" id="intersectionSphere2" color="red">
                 </a-sphere>
-                <a-entity color="red" data-bind="attr:{line:`start: ${point1};end: ${point2};`}"></a-entity>
-                <a-entity geometry="primitive: plane; width: 3; height: 0.5" position="2 2 2" text="value: Hello;"
-                    color="red" data-bind="attr:{position: point2, text:`value: ${text}`}"></a-entity>
+                <a-entity id="line" line=""></a-entity>
 
+                <a-entity data-bind="foreach: labels">
+                    <a-sphere radius="0.05" color="red" data-bind="attr:{position:point1}">
+                    </a-sphere>
+                    <a-sphere radius="0.05" color="red" data-bind="attr:{position:point2}">
+                    </a-sphere>
+                    <a-entity color="red" data-bind="attr:{line:`start: ${point1};end: ${point2};`}"></a-entity>
+                    <a-entity geometry="primitive: plane; width: 3; height: 0.5" position="2 2 2" text="value: Hello;"
+                        color="red" data-bind="attr:{position: point2, text:`value: ${text}`}"></a-entity>
+
+                </a-entity>
             </a-entity>
         </a-marker>
         <a-entity camera></a-entity>

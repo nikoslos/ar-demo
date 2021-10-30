@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
     socket.emit('labels', labels)
 
     socket.on('current model', (modelId) => {
-        // Should first validate modelId schema!!!
+        // first validate modelId schema!!!
         if (typeof (modelId) === "string" && currentModel !== modelId) {
             labels = [];
             currentModel = modelId;
@@ -30,7 +30,7 @@ io.on('connection', (socket) => {
     });
     socket.on('add label', (label) => {
         
-        // Should first validate label schema!!!
+        // first validate label schema!!!
         // point1: string, point2: string, text: string
         var valid = typeof(label) === "object"
         if(!valid) return
@@ -39,6 +39,8 @@ io.on('connection', (socket) => {
         valid = label.hasOwnProperty("point1") && label.hasOwnProperty("point2") && label.hasOwnProperty("text")
         if(!valid) return
         valid = typeof(label.point1) === "string" && typeof(label.point2) === "string" && typeof(label.text) === "string"
+        if(!valid) return
+        valid = label.point1.length <= 20 && label.point2.length <= 20 && label.text.length <= 200
         if(!valid) return
         
         if (labels.length > 20) {

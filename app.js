@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
         if(!valid) return
         valid = typeof(label.point1) === "string" && typeof(label.point2) === "string" && typeof(label.text) === "string"
         if(!valid) return
-        valid = label.point1.length <= 20 && label.point2.length <= 20 && label.text.length <= 200
+        valid = label.point1.length <= 80 && label.point2.length <= 80 && label.text.length <= 200
         if(!valid) return
         
         if (labels.length > 20) {

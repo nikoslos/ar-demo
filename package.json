@@ -1,12 +1,12 @@
 {
   "name": "ar-demo-backend",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "start-dev": "nodemon index"
+    "dev": "nodemon index"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+<script src="https://rawgit.com/jeromeetienne/ar.js/master/aframe/build/aframe-ar.js"></script>
+<script>
+    function vector3ToString(vector3) {
+        return `${vector3.x} ${vector3.y} ${vector3.z}`
+    }
+    var alreadyClicked=false;
+    AFRAME.registerComponent('clickhandler', {
+        init: function () {
+            this.el.addEventListener('click', (event) => {
+                if(alreadyClicked) return
+                alreadyClicked = true
+                if (this.el.getAttribute("color") === "green")
+                    this.el.setAttribute("color","red")
+                else
+                    this.el.setAttribute("color","green")
+                setTimeout(function (){alreadyClicked = false},30)
+            });
+        },
+    });
+    AFRAME.registerComponent('clickable', {
+        init: function () {
+            this.el.classList.add("clickable");
+        }
+    });
+</script>
+
+<body style="margin : 0px; overflow: hidden;">
+    <a-scene embedded arjs raycaster="objects: .clickable" cursor="rayOrigin: mouse">
+        <a-marker cursor="rayOrigin: mouse;" preset="hiro">
+            <a-sphere  position="0 0 -1" radius="0.1" color="green" ></a-sphere>
+
+            <a-sphere id="clickpoint" color="green" position="0 0 0" radius="1"  clickhandler/>
+        </a-marker>
+        <a-entity camera></a-entity>
+        <a-entity cursor="rayOrigin:mouse"></a-entity>
+    </a-scene>
+    <script>
+        function fixRaycast() {
+            const scene = AFRAME.scenes[0];
+            if (!scene) {
+                return;
+            }
+            console.log("Fixed Raycast")
+            const mouseCursor = document.createElement('a-entity');
+            mouseCursor.setAttribute('cursor', 'rayOrigin', 'mouse');
+            scene.appendChild(mouseCursor);
+        }
+        setTimeout(fixRaycast, 4000);
+
+
+    </script>
+
+    <script>
+        /**
+         * Clicking on Objects only works with aframe 0.9.2 and is still unreliable
+         * https://github.com/AR-js-org/AR.js/issues/216
+         * https://github.com/AR-js-org/AR.js/issues/66
+         *
+         * They don't know why that is the case ...
+         *
+         * Using aframe 0.9.2 works for gestures zooming and so on
+         **/
+
+    </script>
+
+</body>
+
+</html>

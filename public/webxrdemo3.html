@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>WebXR AR Demo mit Socket</title>
+    <title>WebXR AR Demo mit Socket Interaktiv</title>
 
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 
@@ -18,16 +18,19 @@
 </head>
 
 <body style="margin : 0px; overflow: hidden;">
+    <script src="js/interactive.js"></script>
+
     <a-scene webxr="requiredFeatures: hit-test,local-floor;
     optionalFeatures: dom-overlay,unbounded;
-    overlayElement: #overlay;">
+    overlayElement: #overlay;" raycaster="objects: .clickable" cursor="rayOrigin: mouse">
         <a-assets data-bind="foreach: models">
             <a-asset-item id="" src="" data-bind="attr: {id,src}"></a-asset-item>
         </a-assets>
         <a-entity position="0 0 -3">
             <a-entity scale="1 1 1">
                 <a-entity data-bind="if:hasModels">
-                    <a-entity id="currentModel" data-bind="attr:{'gltf-model':`#${currentModel()}`}">
+                    <a-entity clickable clickhandler id="currentModel"
+                        data-bind="attr:{'gltf-model':`#${currentModel()}`}">
                     </a-entity>
                 </a-entity>
                 <a-entity data-bind="foreach: labels">

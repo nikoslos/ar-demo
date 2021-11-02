@@ -11,6 +11,12 @@ const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
+app.enable('trust proxy')
+app.use((req, res, next) => {
+    req.secure ? next() : res.redirect('https://' + req.headers.host + req.url)
+})
+
+
 var currentModel = "ammonitModel2";
 var labels = [];
 

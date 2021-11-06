@@ -94,3 +94,14 @@ socket.on('current model', function (modelId) {
     var modelIndex = getModelIdIndexFromId(modelId)
     viewModel.currentModelIndex(modelIndex)
 });
+
+
+function addLabel(point1, point2, text) {
+    socket.emit("add label",
+      {
+        "point1": vector3ToString(point1),
+        "point2": vector3ToString(point2),
+        "text": text
+      }
+    )
+  }

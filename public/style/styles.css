@@ -20,7 +20,7 @@ model-viewer {
     background-color: #ffffff;
 }
 
-button {
+button.Hotspot {
     display: block;
     width: 20px;
     height: 20px;

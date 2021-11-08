@@ -35,7 +35,7 @@
                 AR is not tracking!
             </button>
 
-            <button v-for="(annotation, index) in annotations" :class="{Hotspot:true,hidden:!annotation.visible}"
+            <button v-for="(annotation, index) in annotations" :key="annotation.name" :class="{Hotspot:true,hidden:!annotation.visible}"
                 :slot="annotation.name" :data-position="annotation.position" :data-normal="annotation.normal">
                 <div class="HotspotAnnotation">{{annotation.text}}</div>
             </button>
@@ -43,7 +43,7 @@
 
             <div class="ui">
                 <h1>Annotations</h1>
-                <div v-for="(annotation, index) in annotations" :key="annotation.id">
+                <div v-for="(annotation, index) in annotations" :key="annotation.name">
                     <input class="form-check-input" type="checkbox" v-model="annotation.visible" />
                     <label>
 

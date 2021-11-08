@@ -35,23 +35,22 @@
                 AR is not tracking!
             </button>
 
-            <button v-for="(annotation, index) in annotations" :key="annotation.name" :class="{Hotspot:true,hidden:!annotation.visible}"
-                :slot="annotation.name" :data-position="annotation.position" :data-normal="annotation.normal">
+            <button v-for="(annotation, index) in annotations" :key="annotation.name"
+                :class="{Hotspot:true,hidden:!annotation.visible}" :slot="annotation.name"
+                :data-position="annotation.position" :data-normal="annotation.normal">
                 <div class="HotspotAnnotation">{{annotation.text}}</div>
             </button>
 
 
             <div class="ui">
                 <h1>Annotations</h1>
-                <div v-for="(annotation, index) in annotations" :key="annotation.name">
-                    <input class="form-check-input" type="checkbox" v-model="annotation.visible" />
-                    <label>
-
-                    </label>
-                    <input v-model="annotation.text" />
-                    <button @click="removeAnnotation(index)" type="button" class="btn btn-danger btn-sm">
-                        <span class="glyphicon glyphicon-remove"></span> Remove
-                    </button>
+                <div v-for="(annotation, index) in annotations" :key="annotation.name" class="input-group mb-2">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" v-model="annotation.visible"
+                            :aria-label="annotation.name">
+                    </div>
+                    <input type="text" v-model="annotation.text" :aria-label="annotation.name">
+                    <button @click="removeAnnotation(index)" class="btn btn-outline-danger" type="button">Remove</button>
                 </div>
             </div>
 

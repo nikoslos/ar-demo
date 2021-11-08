@@ -1,0 +1,23 @@
+.normalButton {
+    width: auto;
+    height: 30px;
+    background-color: grey;
+    color: white;
+    border-radius: 3px;
+}
+
+.normalButton:hover {
+    background-color: darkgrey;
+}
+
+.normalButton:active {
+    background-color: rgb(51, 51, 51);
+}
+
+.ui {
+    margin: 10px;
+}
+
+.hidden {
+    display: none;
+}

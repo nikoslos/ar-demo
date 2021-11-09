@@ -46,7 +46,7 @@ const mvCustom = {
             this.modelViewer.cameraTarget = `${target.x}m ${target.y}m ${target.z}m`;
         },
         hitAddAnnotation(event) {
-            const hit = this.$refs.modelviewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+            const hit = this.modelViewer.positionAndNormalFromPoint(event.clientX, event.clientY);
             if (hit != null) {
                 this.$emit('hit', hit)
             }
@@ -114,7 +114,7 @@ const mvCustom = {
     },
     mounted() {
         this.modelViewer = this.$refs.modelviewer;
-
+        console.log("MOunted Component")
         self.addEventListener('mousedown', this.handleMouseDown, true);
         self.addEventListener('mousemove', this.handleMouseMove, true);
         self.addEventListener('mouseup', this.handleMouseUp, true)

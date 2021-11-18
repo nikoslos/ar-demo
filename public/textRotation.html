@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Click Demo</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+
+<body style="margin : 0px; overflow: hidden;">
+  <script>
+    function vector3ToString(vector3) {
+      return `${vector3.x} ${vector3.y} ${vector3.z}`
+    }
+    var cam = Vue.reactive({ rotation: { x: 0, y: 0, z: 0 }, position: { x: 0, y: 0, z: 0 } })
+
+    AFRAME.registerComponent('camera-rotation', {
+      tick: function () {
+        cam.rotation.x = this.el.object3D.rotation.x;
+        cam.rotation.y = this.el.object3D.rotation.y;
+        cam.rotation.z = this.el.object3D.rotation.z;
+
+        cam.position.x = this.el.object3D.position.x;
+        cam.position.y = this.el.object3D.position.y;
+        cam.position.z = this.el.object3D.position.z;
+      }
+    })
+    AFRAME.registerComponent("overlay", {
+        dependencies: ['material'],
+        init: function () {
+          this.el.sceneEl.renderer.sortObjects = true;
+          this.el.object3D.renderOrder = 100;
+          this.el.components.material.material.depthTest = false;
+        }
+  });
+
+  </script>
+  <div id="app">
+    <a-scene d>
+      <a-entity id="currentModel" gltf-model="models/Ammonit2.glb" />
+
+      <a-plane id="label1" width="3" height="0.5" :rotation="labelRotation" position="0.4396451917578843 0.03839100798010142 -0.00967103187458726" :scale="labelScale" color="#24afab" overlay>
+        <a-text overlay position="-0.75 0.125 0" :value="text" font="mozillavr"  />
+      </a-plane>
+
+      <a-sky color="#f7ecfa"></a-sky>
+      <a-camera position="0 2 5" camera-rotation>
+
+      </a-camera>
+    </a-scene>
+
+  </div>
+  <script>
+
+    const rotationDemo = {
+      data() {
+        return {
+          text: "Wasser ist nass"
+        }
+      },
+      computed: {
+        labelRotation() {
+          return `${THREE.Math.radToDeg(this.cam.rotation.x)} ${THREE.Math.radToDeg(this.cam.rotation.y)} ${THREE.Math.radToDeg(this.cam.rotation.z)}`
+        },
+        labelScale() {
+          // console.log("move")
+          var labelPos = document.getElementById("label1")?.object3D.position.clone()
+          var scale = new THREE.Vector3()
+          scale.x = 1.0
+          scale.y = 1.0
+          scale.z = 1.0
+
+          if (this.cam.position.x > 90 || this.cam.position.y > 90 || this.cam.position.z > 90)
+            scale.z = 1.0
+
+          if (labelPos !== undefined) {
+            var distance = labelPos.distanceTo(this.cam.position)
+            var initialDistance = (new THREE.Vector3(0,2,5)).distanceTo(labelPos)
+            scale.x = distance / initialDistance
+            scale.y = distance / initialDistance
+            scale.z = 1.0
+          }
+         // console.log(scale)
+
+          return vector3ToString(scale);
+        }
+      },
+      watch: {
+        cam: function (newVal) {
+          console.log(vector3ToString(newVal))
+        }
+      },
+      created() {
+        this.cam = cam;
+        /**/
+      }
+    }
+
+    var app = Vue.createApp(rotationDemo)
+    app.config.compilerOptions.isCustomElement = tag => tag.startsWith('a-')
+    app.mount("#app")
+  </script>
+
+</body>
+
+</html>

@@ -9,6 +9,24 @@
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://unpkg.com/vue@next"></script>
 </head>
+<style>
+  a-scene {
+    width: 100%;
+    height: 80%;
+  }
+
+  body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  #app {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+</style>
 
 <body style="margin : 0px; overflow: hidden;">
   <script>
@@ -18,39 +36,66 @@
     var cam = Vue.reactive({ rotation: { x: 0, y: 0, z: 0 }, position: { x: 0, y: 0, z: 0 } })
 
     AFRAME.registerComponent('camera-rotation', {
-      tick: function () {
-        cam.rotation.x = this.el.object3D.rotation.x;
-        cam.rotation.y = this.el.object3D.rotation.y;
-        cam.rotation.z = this.el.object3D.rotation.z;
+      tick: (function () {
 
-        cam.position.x = this.el.object3D.position.x;
-        cam.position.y = this.el.object3D.position.y;
-        cam.position.z = this.el.object3D.position.z;
-      }
+        var quaternion = new THREE.Quaternion()
+        var rotation = new THREE.Euler()
+        var position = new THREE.Vector3()
+
+        return function () {
+          this.el.object3D.getWorldPosition(position);
+          this.el.object3D.getWorldQuaternion(quaternion);
+          rotation.setFromQuaternion(quaternion)
+
+
+          cam.rotation.x = rotation.x;
+          cam.rotation.y = rotation.y;
+          cam.rotation.z = rotation.z;
+
+          cam.position.x = position.x;
+          cam.position.y = position.y;
+          cam.position.z = position.z;
+
+        }
+      })()
     })
     AFRAME.registerComponent("overlay", {
-        dependencies: ['material'],
-        init: function () {
-          this.el.sceneEl.renderer.sortObjects = true;
-          this.el.object3D.renderOrder = 100;
-          this.el.components.material.material.depthTest = false;
-        }
-  });
+      dependencies: ['material'],
+      init: function () {
+        this.el.sceneEl.renderer.sortObjects = true;
+        this.el.object3D.renderOrder = 100;
+        this.el.components.material.material.depthTest = false;
+      }
+    });
 
   </script>
-  <div id="app">
-    <a-scene d>
-      <a-entity id="currentModel" gltf-model="models/Ammonit2.glb" />
 
-      <a-plane id="label1" width="3" height="0.5" :rotation="labelRotation" position="0.4396451917578843 0.03839100798010142 -0.00967103187458726" :scale="labelScale" color="#24afab" overlay>
-        <a-text overlay position="-0.75 0.125 0" :value="text" font="mozillavr"  />
-      </a-plane>
+  <div id="app">
+    <a-scene embedded @contextmenu="hideContextMenu" @mousemove="handleMouseMove" @mousedown="handleMouseDown" @mouseup="handleMouseUp">
+      <a-entity>
+        <a-entity id="currentModel" gltf-model="models/Ammonit2.glb" />
+
+
+        <a-entity position="0.4396451917578843 0.03839100798010142 -0.00967103187458726" :scale="labelScale"
+          :rotation="labelRotation" overlay>
+          <a-circle color="#CCC" radius="0.2" overlay></a-circle>
+          <!--    <a-text position="0 0 0" :value="text" color="red" overlay>-->
+
+          <a-plane id="label1" width="3" height="0.5" position="1.5 0 0" color="#24afab" overlay></a-plane>
+        </a-entity>
+
+      </a-entity>
+
+      <a-sphere id="rig" radius="3" opacity="0.5" color="green">
+        <a-entity camera="active: true" fov="60" position="0 0 3" camera-rotation>
+        </a-entity>
+      </a-sphere>
 
       <a-sky color="#f7ecfa"></a-sky>
-      <a-camera position="0 2 5" camera-rotation>
-
-      </a-camera>
     </a-scene>
+    <div style="position: absoulte; z-index: 1000;">
+      <input id="textInput" v-model="text" style="z-index: 1000;">
+    </div>
 
   </div>
   <script>
@@ -58,12 +103,17 @@
     const rotationDemo = {
       data() {
         return {
-          text: "Wasser ist nass"
+          text: "Wasser ist nass fasljflkasj flkasj flkasj lfkljaskf jaslkj",
+          mousePressed: false,
         }
       },
       computed: {
         labelRotation() {
-          return `${THREE.Math.radToDeg(this.cam.rotation.x)} ${THREE.Math.radToDeg(this.cam.rotation.y)} ${THREE.Math.radToDeg(this.cam.rotation.z)}`
+          var rotation = {}
+          rotation.x = THREE.Math.radToDeg(this.cam.rotation.x);
+          rotation.y = THREE.Math.radToDeg(this.cam.rotation.y);
+          rotation.z = THREE.Math.radToDeg(this.cam.rotation.z);
+          return vector3ToString(rotation)
         },
         labelScale() {
           // console.log("move")
@@ -78,12 +128,12 @@
 
           if (labelPos !== undefined) {
             var distance = labelPos.distanceTo(this.cam.position)
-            var initialDistance = (new THREE.Vector3(0,2,5)).distanceTo(labelPos)
-            scale.x = distance / initialDistance
-            scale.y = distance / initialDistance
-            scale.z = 1.0
+            var initialDistance = (new THREE.Vector3(0, 2, 5)).distanceTo(labelPos)
+            scale.x = distance / 2
+            scale.y = distance / 2
+            scale.z = distance / 2
           }
-         // console.log(scale)
+          // console.log(scale)
 
           return vector3ToString(scale);
         }
@@ -91,6 +141,50 @@
       watch: {
         cam: function (newVal) {
           console.log(vector3ToString(newVal))
+        }
+      },
+      methods: {
+        handleMouseDown(event) {
+          if (this.mousePressed === false) {
+            this.mousePressed = true;
+          }
+        },
+        handleMouseMove(event) {
+          if (this.mousePressed) {
+            var mouseMovement = {
+              "x": event.movementX,
+              "y": event.movementY
+            }
+
+            if (event.ctrlKey || event.shiftKey) {
+
+            } else {
+
+              
+              rig.object3D.rotation.y += mouseMovement.x * 0.01
+              //rig.object3D.rotation.x += mouseMovement.y * 0.01
+
+          /*    if (rig.object3D.rotation.x > Math.PI / 2) rig.object3D.rotation.x = Math.PI / 2
+              if (rig.object3D.rotation.x < -Math.PI / 2) rig.object3D.rotation.x = -Math.PI / 2
+
+              if (rig.object3D.rotation.z > Math.PI / 2) rig.object3D.rotation.z = Math.PI / 2
+              if (rig.object3D.rotation.z < -Math.PI / 2) rig.object3D.rotation.z = -Math.PI / 2
+
+*/
+              //if (rig.object3D.rotation.y > Math.PI) rig.object3D.rotation.y = 0
+              //if (rig.object3D.rotation.y < -Math.PI) rig.object3D.rotation.y = 0
+
+
+            }
+
+          }
+
+        },
+        handleMouseUp(event) {
+          this.mousePressed = false;
+        },
+        hideContextMenu(event) {
+          event.preventDefault();
         }
       },
       created() {

@@ -1,0 +1,17 @@
+{
+    "name": "nodejs dev env",
+    "dockerFile": "Dockerfile",
+    "runArgs": ["-u", "node"],
+    "settings": {
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "bash",
+                "icon": "terminal-bash"
+            }
+        }
+    },
+    "postCreateCommand": "npm install",
+    "extensions": [
+    
+    ]
+}
